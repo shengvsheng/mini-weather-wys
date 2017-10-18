@@ -2,6 +2,7 @@ package cn.edu.pku.wangyongsheng.miniweather;
 
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
@@ -35,11 +36,11 @@ import cn.edu.pku.wangyongsheng.util.NetUtil;
 public class MainActivity extends Activity implements View.OnClickListener {
     private TextView tv_title_city, tv_city, tv_time, tv_humidity, tv_daytime, tv_pm2_5_value, tv_pm2_5_quality,
             tv_temp, tv_weather, tv_wind, tv_degree;
-    private ImageView iv_pm2_5_face, iv_weather_face, iv_title_update;
+    private ImageView iv_pm2_5_face, iv_weather_face, iv_title_update, iv_select_city;
     private static final int UPDATE_TODAY_WEATHER = 1;
 
     private Handler mHandler;
-
+    SharedPreferences sharedPreferences;
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +66,19 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     private void updateTodayWeather(TodayWeather todayWeather) {
-
+        SharedPreferences.Editor edit = sharedPreferences.edit();
+        edit.putString("title_city",todayWeather.getCity() + "天气");
+        edit.putString("city",todayWeather.getCity());
+        edit.putString("time",todayWeather.getUpdatetime() + "发布");
+        edit.putString("humidity","湿度：" + todayWeather.getShidu());
+        edit.putString("pm2_5_value",todayWeather.getPm25());
+        edit.putString("pm2_5_quality",todayWeather.getQuality());
+        edit.putString("daytime",todayWeather.getDate());
+        edit.putString("temp","温度:" + todayWeather.getLow() + "~" + todayWeather.getHigh());
+        edit.putString("degree",todayWeather.getLow() + "~" + todayWeather.getHigh());
+        edit.putString("weather",todayWeather.getType());
+        edit.putString("wind","风力:" + todayWeather.getFengli());
+        edit.commit();
         tv_title_city.setText(todayWeather.getCity() + "天气");
         tv_city.setText(todayWeather.getCity());
         tv_time.setText(todayWeather.getUpdatetime() + "发布");
@@ -77,7 +90,51 @@ public class MainActivity extends Activity implements View.OnClickListener {
         tv_degree.setText(todayWeather.getLow() + "~" + todayWeather.getHigh());
         tv_weather.setText(todayWeather.getType());
         tv_wind.setText("风力:" + todayWeather.getFengli());
-        switch (todayWeather.getType()) {
+        switchFace(todayWeather.getType(),todayWeather.getQuality());
+        Toast.makeText(MainActivity.this, "更新成功！", Toast.LENGTH_SHORT).show();
+
+    }
+
+    private void initView() {
+        sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
+
+        iv_title_update = findViewById(R.id.iv_title_update);
+        iv_select_city = findViewById(R.id.iv_select_city);
+        iv_title_update.setOnClickListener(this);
+        iv_select_city.setOnClickListener(this);
+
+        tv_title_city = findViewById(R.id.tv_title_city);
+        tv_city = findViewById(R.id.tv_city);
+        tv_time = findViewById(R.id.tv_time);
+        tv_humidity = findViewById(R.id.tv_humidity);
+        tv_daytime = findViewById(R.id.tv_daytime);
+        tv_pm2_5_value = findViewById(R.id.tv_pm2_5_value);
+        tv_pm2_5_quality = findViewById(R.id.tv_pm2_5_quality);
+        iv_pm2_5_face = findViewById(R.id.iv_pm2_5_face);
+        tv_temp = findViewById(R.id.tv_temp);
+        tv_weather = findViewById(R.id.tv_weather);
+        tv_wind = findViewById(R.id.tv_wind);
+        tv_degree = findViewById(R.id.tv_degree);
+        iv_weather_face = findViewById(R.id.iv_weather_face);
+
+
+        tv_title_city.setText(sharedPreferences.getString("title_city", "N/A"));
+        tv_city.setText(sharedPreferences.getString("city", "N/A"));
+        tv_time.setText(sharedPreferences.getString("time", "N/A"));
+        tv_humidity.setText(sharedPreferences.getString("humidity", "N/A"));
+        tv_daytime.setText(sharedPreferences.getString("daytime", "N/A"));
+        tv_pm2_5_value.setText(sharedPreferences.getString("pm2_5_value", "N/A"));
+        tv_pm2_5_quality.setText(sharedPreferences.getString("pm2_5_quality", "N/A"));
+        tv_temp.setText(sharedPreferences.getString("temp", "N/A"));
+        tv_weather.setText(sharedPreferences.getString("weather", "N/A"));
+        tv_wind.setText(sharedPreferences.getString("wind", "N/A"));
+        tv_degree.setText(sharedPreferences.getString("degree", "N/A"));
+        switchFace(sharedPreferences.getString("weather", "N/A"),sharedPreferences.getString("pm2_5_quality", "N/A"));
+    }
+
+    private void switchFace(String weather, String pm2_5_quality) {
+
+        switch (weather) {
             case "阵雨":
                 iv_weather_face.setImageResource(R.drawable.biz_plugin_weather_zhenyu);
                 break;
@@ -142,7 +199,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 iv_weather_face.setImageResource(R.drawable.biz_plugin_weather_wu);
                 break;
         }
-        switch (todayWeather.getQuality()) {
+        switch (pm2_5_quality) {
             case "优":
                 iv_pm2_5_face.setImageResource(R.drawable.biz_plugin_weather_0_50);
                 break;
@@ -165,45 +222,18 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 iv_pm2_5_face.setImageResource(R.drawable.biz_plugin_weather_0_50);
                 break;
         }
-        Toast.makeText(MainActivity.this, "更新成功！", Toast.LENGTH_SHORT).show();
-
-    }
-
-    private void initView() {
-        iv_title_update = findViewById(R.id.iv_title_update);
-        iv_title_update.setOnClickListener(this);
-
-        tv_title_city = findViewById(R.id.tv_title_city);
-        tv_city = findViewById(R.id.tv_city);
-        tv_time = findViewById(R.id.tv_time);
-        tv_humidity = findViewById(R.id.tv_humidity);
-        tv_daytime = findViewById(R.id.tv_daytime);
-        tv_pm2_5_value = findViewById(R.id.tv_pm2_5_value);
-        tv_pm2_5_quality = findViewById(R.id.tv_pm2_5_quality);
-        iv_pm2_5_face = findViewById(R.id.iv_pm2_5_face);
-        tv_temp = findViewById(R.id.tv_temp);
-        tv_weather = findViewById(R.id.tv_weather);
-        tv_wind = findViewById(R.id.tv_wind);
-        tv_degree = findViewById(R.id.tv_degree);
-        iv_weather_face = findViewById(R.id.iv_weather_face);
-
-        tv_title_city.setText("N/A");
-        tv_city.setText("N/A");
-        tv_time.setText("N/A");
-        tv_humidity.setText("N/A");
-        tv_daytime.setText("N/A");
-        tv_pm2_5_value.setText("N/A");
-        tv_pm2_5_quality.setText("N/A");
-        tv_temp.setText("N/A");
-        tv_weather.setText("N/A");
-        tv_wind.setText("N/A");
-        tv_degree.setText("N/A");
     }
 
     @Override
     public void onClick(View view) {
+        if (view.getId() == R.id.iv_select_city) {
+            Intent i = new Intent();
+            i.setClass(this, SelectCityActivity.class);
+            startActivityForResult(i, 0);
+        }
+
         if (view.getId() == R.id.iv_title_update) {
-            SharedPreferences sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
+
             String cityCode = sharedPreferences.getString("city_code", "101010100");
             if (NetUtil.getNetworkState(this) != NetUtil.NETWORK_NONE) {
                 queryWeatherInfo(cityCode);
@@ -324,5 +354,26 @@ public class MainActivity extends Activity implements View.OnClickListener {
             e.printStackTrace();
         }
         return todayWeather;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case 0:
+                    SharedPreferences.Editor edit = sharedPreferences.edit();
+                    edit.putString("city_code",data.getStringExtra("city_code"));
+                    edit.commit();
+                    if (NetUtil.getNetworkState(this) != NetUtil.NETWORK_NONE) {
+                        queryWeatherInfo(data.getStringExtra("city_code"));
+                    } else {
+                        Toast.makeText(this, "没有网络，请打开网络设置", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }
