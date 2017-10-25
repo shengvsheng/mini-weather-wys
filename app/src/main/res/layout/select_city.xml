@@ -18,6 +18,7 @@
             android:src="@drawable/base_action_bar_back_normal" />
 
         <TextView
+            android:id="@+id/tv_select_city"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
@@ -25,4 +26,8 @@
             android:textColor="@color/white"
             android:textSize="16dp" />
     </RelativeLayout>
+    <ListView
+        android:id="@+id/lv_city_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></ListView>
 </LinearLayout>
