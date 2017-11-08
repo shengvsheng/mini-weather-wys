@@ -45,11 +45,14 @@ public class SelectCityActivity extends Activity implements View.OnClickListener
         tv_select_city=findViewById(R.id.tv_select_city);
         lv_city_list=findViewById(R.id.lv_city_list);
         mCityList= MyApplication.getInstance().getCityList();
+        //ListView适配数据
         lv_city_list.setAdapter(new CityListAdapter());
+        //ListView的item点击事件
         lv_city_list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Toast.makeText(SelectCityActivity.this, mCityList.get(i).getNumber() , Toast.LENGTH_SHORT).show();
+                //保存点击的item的位置
                 SharedPreferences.Editor edit = sharedPreferences.edit();
                 edit.putInt("position",i);
                 edit.commit();
@@ -71,12 +74,13 @@ public class SelectCityActivity extends Activity implements View.OnClickListener
 
     @Override
     public void onBackPressed() {
+        //返回时携带返回的城市代码数据
         getIntent().putExtra("city_code",mCityList.get(sharedPreferences.getInt("position",0)).getNumber());
         setResult(RESULT_OK, getIntent());
         finish();
         super.onBackPressed();
     }
-
+    //自定义城市适配器
     class CityListAdapter extends BaseAdapter{
 
         @Override

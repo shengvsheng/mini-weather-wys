@@ -37,7 +37,7 @@ public class MyApplication extends Application {
     public static MyApplication getInstance(){
         return myApplication;
     }
-
+    //打开apk的目录下的数据库，若不存在，通过输入流从资源assets文件夹下读取数据库文件到apk安装的目录的指定位置
     private CityDB openCityDB(){
         String path = "/data"
                 + Environment.getDataDirectory().getAbsolutePath()
@@ -88,7 +88,7 @@ public class MyApplication extends Application {
         }).run();
 
     }
-
+    //在app启动好就准备好city数据
     private boolean prepareCityList() {
         mCityList=mCityDB.getAllCity();
         int i=0;

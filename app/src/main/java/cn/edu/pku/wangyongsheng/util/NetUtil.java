@@ -13,7 +13,7 @@ public class NetUtil {
     public static final int NETWORK_NONE=0;
     public static final int NETWORK_WIFI=1;
     public static final int NETWORK_MOBILE=2;
-
+    //使用ConnectivityManager类管理网络状态
     public static int getNetworkState(Context context){
         ConnectivityManager connManager= (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkType =connManager.getActiveNetworkInfo();

@@ -1,6 +1,7 @@
 package cn.edu.pku.wangyongsheng.bean;
 
 /**
+ * 天气bean类
  * Created by xiaosheng on 2017/10/11.
  */
 

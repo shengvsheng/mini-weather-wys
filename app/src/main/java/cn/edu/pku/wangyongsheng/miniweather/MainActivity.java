@@ -51,6 +51,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     private void addHandle() {
+        //使用Handler更新主线程UI
         mHandler = new Handler() {
             public void handleMessage(android.os.Message msg) {
                 switch (msg.what) {
@@ -67,24 +68,26 @@ public class MainActivity extends Activity implements View.OnClickListener {
     }
 
     private void updateTodayWeather(TodayWeather todayWeather) {
+        //更新数据时使用SharedPreferences保存数据，供下次打开时使用
         SharedPreferences.Editor edit = sharedPreferences.edit();
-        edit.putString("title_city" , todayWeather.getCity() + "天气");
-        edit.putString("city" , todayWeather.getCity());
-        edit.putString("time" , todayWeather.getUpdatetime() + "发布");
-        edit.putString("humidity" , "湿度：" + todayWeather.getShidu());
+        edit.putString("title_city", todayWeather.getCity() + "天气");
+        edit.putString("city", todayWeather.getCity());
+        edit.putString("time", todayWeather.getUpdatetime() + "发布");
+        edit.putString("humidity", "湿度：" + todayWeather.getShidu());
         if (todayWeather.getPm25().equals("")) {
-            edit.putString("pm2_5_value" , "无");
-            edit.putString("pm2_5_quality" , "无");
+            edit.putString("pm2_5_value", "无");
+            edit.putString("pm2_5_quality", "无");
         } else {
-            edit.putString("pm2_5_value" , todayWeather.getPm25());
-            edit.putString("pm2_5_quality" , todayWeather.getQuality());
+            edit.putString("pm2_5_value", todayWeather.getPm25());
+            edit.putString("pm2_5_quality", todayWeather.getQuality());
         }
-        edit.putString("daytime" , todayWeather.getDate());
-        edit.putString("temp" , "温度:" + todayWeather.getLow() + "~" + todayWeather.getHigh());
-        edit.putString("degree" , todayWeather.getLow() + "~" + todayWeather.getHigh());
-        edit.putString("weather" , todayWeather.getType());
-        edit.putString("wind" , "风力:" + todayWeather.getFengli());
+        edit.putString("daytime", todayWeather.getDate());
+        edit.putString("temp", "温度:" + todayWeather.getLow() + "~" + todayWeather.getHigh());
+        edit.putString("degree", todayWeather.getLow() + "~" + todayWeather.getHigh());
+        edit.putString("weather", todayWeather.getType());
+        edit.putString("wind", "风力:" + todayWeather.getFengli());
         edit.commit();
+        //更新UI
         tv_title_city.setText(todayWeather.getCity() + "天气");
         tv_city.setText(todayWeather.getCity());
         tv_time.setText(todayWeather.getUpdatetime() + "发布");
@@ -103,13 +106,15 @@ public class MainActivity extends Activity implements View.OnClickListener {
             tv_pm2_5_quality.setText(todayWeather.getQuality());
         }
         switchFace(todayWeather.getType(), todayWeather.getQuality());
-        Toast.makeText(MainActivity.this, "更新成功！" , Toast.LENGTH_SHORT).show();
+        //更新成功Toast信息
+        Toast.makeText(MainActivity.this, "更新成功！", Toast.LENGTH_SHORT).show();
 
     }
 
+    //初始化控件方法
     private void initView() {
-        sharedPreferences = getSharedPreferences("config" , MODE_PRIVATE);
-
+        sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
+        //绑定控件
         iv_title_update = findViewById(R.id.iv_title_update);
         iv_select_city = findViewById(R.id.iv_select_city);
         iv_title_update.setOnClickListener(this);
@@ -129,21 +134,22 @@ public class MainActivity extends Activity implements View.OnClickListener {
         tv_degree = findViewById(R.id.tv_degree);
         iv_weather_face = findViewById(R.id.iv_weather_face);
 
-
-        tv_title_city.setText(sharedPreferences.getString("title_city" , "N/A"));
-        tv_city.setText(sharedPreferences.getString("city" , "N/A"));
-        tv_time.setText(sharedPreferences.getString("time" , "N/A"));
-        tv_humidity.setText(sharedPreferences.getString("humidity" , "N/A"));
-        tv_daytime.setText(sharedPreferences.getString("daytime" , "N/A"));
-        tv_pm2_5_value.setText(sharedPreferences.getString("pm2_5_value" , "N/A"));
-        tv_pm2_5_quality.setText(sharedPreferences.getString("pm2_5_quality" , "N/A"));
-        tv_temp.setText(sharedPreferences.getString("temp" , "N/A"));
-        tv_weather.setText(sharedPreferences.getString("weather" , "N/A"));
-        tv_wind.setText(sharedPreferences.getString("wind" , "N/A"));
-        tv_degree.setText(sharedPreferences.getString("degree" , "N/A"));
-        switchFace(sharedPreferences.getString("weather" , "N/A"), sharedPreferences.getString("pm2_5_quality" , "N/A"));
+        //从SharedPreferences中获取数据，并更新控件的内容
+        tv_title_city.setText(sharedPreferences.getString("title_city", "N/A"));
+        tv_city.setText(sharedPreferences.getString("city", "N/A"));
+        tv_time.setText(sharedPreferences.getString("time", "N/A"));
+        tv_humidity.setText(sharedPreferences.getString("humidity", "N/A"));
+        tv_daytime.setText(sharedPreferences.getString("daytime", "N/A"));
+        tv_pm2_5_value.setText(sharedPreferences.getString("pm2_5_value", "N/A"));
+        tv_pm2_5_quality.setText(sharedPreferences.getString("pm2_5_quality", "N/A"));
+        tv_temp.setText(sharedPreferences.getString("temp", "N/A"));
+        tv_weather.setText(sharedPreferences.getString("weather", "N/A"));
+        tv_wind.setText(sharedPreferences.getString("wind", "N/A"));
+        tv_degree.setText(sharedPreferences.getString("degree", "N/A"));
+        switchFace(sharedPreferences.getString("weather", "N/A"), sharedPreferences.getString("pm2_5_quality", "N/A"));
     }
 
+    //根据天气、空气质量情况更新脸的表情和天气的表情
     private void switchFace(String weather, String pm2_5_quality) {
 
         switch (weather) {
@@ -238,25 +244,27 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
+        //点击选择城市控件，跳转到选择城市activity
         if (view.getId() == R.id.iv_select_city) {
             Intent i = new Intent();
             i.setClass(this, SelectCityActivity.class);
             startActivityForResult(i, 0);
         }
-
+        //点击获取数据控件，获取当前保存的城市代码对应的城市天气数据
         if (view.getId() == R.id.iv_title_update) {
 
-            String cityCode = sharedPreferences.getString("city_code" , "101010100");
+            String cityCode = sharedPreferences.getString("city_code", "101010100");
             if (NetUtil.getNetworkState(this) != NetUtil.NETWORK_NONE) {
                 queryWeatherInfo(cityCode);
             } else {
-                Toast.makeText(this, "没有网络，请打开网络设置" , Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "没有网络，请打开网络设置", Toast.LENGTH_SHORT).show();
             }
         }
     }
-
+    //根据城市代码查询天气情况
     private void queryWeatherInfo(String cityCode) {
         final String address = "http://wthrcdn.etouch.cn/WeatherApi?citykey=" + cityCode;
+        //使用子线程，通过Http方式获取接口数据
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -275,20 +283,22 @@ public class MainActivity extends Activity implements View.OnClickListener {
                         reponse.append(str);
                     }
                     String reponseStr = reponse.toString();
+                    //解析XML数据到天气对象中
                     TodayWeather todayWeaher = parseXML(reponseStr);
+                    //使用Handle提醒主线程更新UI
                     Message msg = new Message();
                     msg.what = UPDATE_TODAY_WEATHER;
                     msg.obj = todayWeaher;
                     mHandler.sendMessage(msg);
 
                 } catch (Exception e) {
-                    Toast.makeText(MainActivity.this, "网络异常！" , Toast.LENGTH_SHORT).show();
+                    Toast.makeText(MainActivity.this, "网络异常！", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
                 }
             }
         }).start();
     }
-
+    //解析XML文件数据
     private TodayWeather parseXML(String reponseStr) {
         TodayWeather todayWeather = null;
         int fengxiangCount = 0;
@@ -369,7 +379,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         }
         return todayWeather;
     }
-
+    //对返回的activity，通过requestcode判断作更新操作
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -377,13 +387,13 @@ public class MainActivity extends Activity implements View.OnClickListener {
             switch (requestCode) {
                 case 0:
                     SharedPreferences.Editor edit = sharedPreferences.edit();
-                    edit.putString("city_code" , data.getStringExtra("city_code"));
+                    edit.putString("city_code", data.getStringExtra("city_code"));
                     edit.commit();
-                    Log.i("SSSSSCODE" , data.getStringExtra("city_code"));
+                    Log.i("SSSSSCODE", data.getStringExtra("city_code"));
                     if (NetUtil.getNetworkState(this) != NetUtil.NETWORK_NONE) {
                         queryWeatherInfo(data.getStringExtra("city_code"));
                     } else {
-                        Toast.makeText(this, "没有网络，请打开网络设置" , Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "没有网络，请打开网络设置", Toast.LENGTH_SHORT).show();
                     }
                     break;
                 default:
