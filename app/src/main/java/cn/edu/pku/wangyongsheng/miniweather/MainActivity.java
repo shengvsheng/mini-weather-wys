@@ -11,6 +11,7 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,7 +39,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             tv_temp, tv_weather, tv_wind, tv_degree;
     private ImageView iv_pm2_5_face, iv_weather_face, iv_title_update, iv_select_city;
     private static final int UPDATE_TODAY_WEATHER = 1;
-
+    private ProgressBar pb_update;
     private Handler mHandler;
     SharedPreferences sharedPreferences;
 
@@ -57,7 +58,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
                 switch (msg.what) {
                     case UPDATE_TODAY_WEATHER:
                         updateTodayWeather((TodayWeather) msg.obj);
-
+                        iv_title_update.setVisibility(View.VISIBLE);
+                        pb_update.setVisibility(View.GONE);
                         break;
                     default:
                         break;
@@ -65,6 +67,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             }
 
         };
+
     }
 
     private void updateTodayWeather(TodayWeather todayWeather) {
@@ -119,7 +122,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         iv_select_city = findViewById(R.id.iv_select_city);
         iv_title_update.setOnClickListener(this);
         iv_select_city.setOnClickListener(this);
-
+        pb_update = findViewById(R.id.pb_update);
         tv_title_city = findViewById(R.id.tv_title_city);
         tv_city = findViewById(R.id.tv_city);
         tv_time = findViewById(R.id.tv_time);
@@ -256,14 +259,18 @@ public class MainActivity extends Activity implements View.OnClickListener {
             String cityCode = sharedPreferences.getString("city_code", "101010100");
             if (NetUtil.getNetworkState(this) != NetUtil.NETWORK_NONE) {
                 queryWeatherInfo(cityCode);
+
             } else {
                 Toast.makeText(this, "没有网络，请打开网络设置", Toast.LENGTH_SHORT).show();
             }
         }
     }
+
     //根据城市代码查询天气情况
     private void queryWeatherInfo(String cityCode) {
         final String address = "http://wthrcdn.etouch.cn/WeatherApi?citykey=" + cityCode;
+        iv_title_update.setVisibility(View.GONE);
+        pb_update.setVisibility(View.VISIBLE);
         //使用子线程，通过Http方式获取接口数据
         new Thread(new Runnable() {
             @Override
@@ -289,7 +296,8 @@ public class MainActivity extends Activity implements View.OnClickListener {
                     Message msg = new Message();
                     msg.what = UPDATE_TODAY_WEATHER;
                     msg.obj = todayWeaher;
-                    mHandler.sendMessage(msg);
+                    mHandler.sendMessageDelayed(msg,4000);
+//                    mHandler.sendMessage(msg);
 
                 } catch (Exception e) {
                     Toast.makeText(MainActivity.this, "网络异常！", Toast.LENGTH_SHORT).show();
@@ -298,6 +306,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             }
         }).start();
     }
+
     //解析XML文件数据
     private TodayWeather parseXML(String reponseStr) {
         TodayWeather todayWeather = null;
@@ -379,6 +388,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         }
         return todayWeather;
     }
+
     //对返回的activity，通过requestcode判断作更新操作
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
