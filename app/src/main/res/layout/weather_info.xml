@@ -81,7 +81,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="2"
+            android:layout_weight="1"
             android:orientation="vertical">
 
             <LinearLayout
@@ -279,17 +279,32 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3">
+            android:orientation="vertical"
+            android:layout_weight="1">
+            <LinearLayout
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_width="match_parent"
+                android:layout_weight="3"
+                android:layout_height="match_parent"></LinearLayout>
+            <android.support.v4.view.ViewPager
+                android:id="@+id/vp_six_weather"
+                android:layout_width="match_parent"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_weight="1"
+                android:layout_height="match_parent">
 
-
+            </android.support.v4.view.ViewPager>
+            <LinearLayout
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_width="match_parent"
+                android:layout_weight="3"
+                android:layout_height="match_parent"></LinearLayout>
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="3">
 
-        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

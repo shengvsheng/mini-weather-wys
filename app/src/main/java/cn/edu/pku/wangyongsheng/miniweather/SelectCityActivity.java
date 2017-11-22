@@ -49,6 +49,7 @@ public class SelectCityActivity extends Activity implements View.OnClickListener
         iv_go_back = findViewById(R.id.iv_go_back);
         iv_go_back.setOnClickListener(this);
         tv_select_city = findViewById(R.id.tv_select_city);
+        tv_select_city.setText("当前选择城市：" + sharedPreferences.getString("SELECT","北京"));
         lv_city_list = findViewById(R.id.lv_city_list);
         mCityList = MyApplication.getInstance().getCityList();
         sv_city = findViewById(R.id.sv_city);
@@ -69,8 +70,10 @@ public class SelectCityActivity extends Activity implements View.OnClickListener
                 Toast.makeText(SelectCityActivity.this, mCityList.get(i).getNumber(), Toast.LENGTH_SHORT).show();
                 //保存点击的item的位置
                 SharedPreferences.Editor edit = sharedPreferences.edit();
+                edit.putString("SELECT", mCityList.get(i).getCity());
                 edit.putInt("position", i);
                 edit.commit();
+
                 tv_select_city.setText("当前选择城市：" + mCityList.get(i).getCity());
             }
         });
