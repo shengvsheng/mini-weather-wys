@@ -1,159 +1,178 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
-    android:orientation="horizontal"
-    android:layout_height="match_parent">
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_weight="1"
         android:gravity="center"
-        android:orientation="vertical"
-        android:layout_weight="1">
+        android:orientation="vertical">
+
         <TextView
             android:id="@+id/tv_day_one"
-            android:text="xiao"
-            android:gravity="center"
-            android:textColor="@android:color/white"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3"/>
+            android:layout_weight="3"
+            android:gravity="center"
+            android:text="xiao"
+            android:textColor="@android:color/white" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:gravity="center">
+
             <ImageView
                 android:id="@+id/iv_day_one_face"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/biz_plugin_weather_qing"/>
+                android:src="@drawable/biz_plugin_weather_qing" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tv_day_one_degree"
-            android:textColor="@android:color/white"
-            android:text="xiao"
-            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3"/>
+            android:layout_weight="3"
+            android:gravity="center"
+            android:text="xiao"
+            android:textColor="@android:color/white" />
+
         <TextView
             android:id="@+id/tv_day_one_weather"
-            android:text="xiao"
-            android:textColor="@android:color/white"
-            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3"/>
+            android:layout_weight="3"
+            android:gravity="center"
+            android:text="xiao"
+            android:textColor="@android:color/white" />
+
         <TextView
             android:id="@+id/tv_day_one_wind"
-            android:text="xiao"
-            android:textColor="@android:color/white"
-            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3"/>
+            android:layout_weight="3"
+            android:gravity="center"
+            android:text="xiao"
+            android:textColor="@android:color/white" />
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_weight="1"
         android:gravity="center"
-        android:orientation="vertical"
-        android:layout_weight="1">
+        android:orientation="vertical">
+
         <TextView
             android:id="@+id/tv_day_two"
-            android:text="xiao"
-            android:gravity="center"
-            android:textColor="@android:color/white"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3"/>
+            android:layout_weight="3"
+            android:gravity="center"
+            android:text="xiao"
+            android:textColor="@android:color/white" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:gravity="center">
+
             <ImageView
                 android:id="@+id/iv_day_two_face"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/biz_plugin_weather_qing"/>
+                android:src="@drawable/biz_plugin_weather_qing" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tv_day_two_degree"
-            android:textColor="@android:color/white"
-            android:text="xiao"
-            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3"/>
+            android:layout_weight="3"
+            android:gravity="center"
+            android:text="xiao"
+            android:textColor="@android:color/white" />
+
         <TextView
             android:id="@+id/tv_day_two_weather"
-            android:text="xiao"
-            android:textColor="@android:color/white"
-            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3"/>
+            android:layout_weight="3"
+            android:gravity="center"
+            android:text="xiao"
+            android:textColor="@android:color/white" />
+
         <TextView
             android:id="@+id/tv_day_two_wind"
-            android:text="xiao"
-            android:textColor="@android:color/white"
-            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3"/>
+            android:layout_weight="3"
+            android:gravity="center"
+            android:text="xiao"
+            android:textColor="@android:color/white" />
     </LinearLayout>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_weight="1"
         android:gravity="center"
-        android:orientation="vertical"
-        android:layout_weight="1">
+        android:orientation="vertical">
+
         <TextView
             android:id="@+id/tv_day_three"
-            android:text="xiao"
-            android:gravity="center"
-            android:textColor="@android:color/white"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3"/>
+            android:layout_weight="3"
+            android:gravity="center"
+            android:text="xiao"
+            android:textColor="@android:color/white" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="2"
             android:gravity="center">
+
             <ImageView
                 android:id="@+id/iv_day_three_face"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/biz_plugin_weather_qing"/>
+                android:src="@drawable/biz_plugin_weather_qing" />
         </LinearLayout>
 
         <TextView
             android:id="@+id/tv_day_three_degree"
-            android:textColor="@android:color/white"
-            android:text="xiao"
-            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3"/>
-        <TextView
+            android:layout_weight="3"
+            android:gravity="center"
             android:text="xiao"
+            android:textColor="@android:color/white" />
+
+        <TextView
             android:id="@+id/tv_day_three_weather"
-            android:textColor="@android:color/white"
-            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3"/>
-        <TextView
+            android:layout_weight="3"
+            android:gravity="center"
             android:text="xiao"
+            android:textColor="@android:color/white" />
+
+        <TextView
             android:id="@+id/tv_day_three_wind"
-            android:textColor="@android:color/white"
-            android:gravity="center"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="3"/>
+            android:layout_weight="3"
+            android:gravity="center"
+            android:text="xiao"
+            android:textColor="@android:color/white" />
     </LinearLayout>
+
 </LinearLayout>

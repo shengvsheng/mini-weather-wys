@@ -27,5 +27,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:26.+'
     compile 'com.github.promeg:tinypinyin:2.0.3'
     compile 'com.alibaba:fastjson:1.1.67.android'
+
     testCompile 'junit:junit:4.12'
 }

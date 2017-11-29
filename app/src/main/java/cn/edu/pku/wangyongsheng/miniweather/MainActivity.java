@@ -12,6 +12,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -48,7 +49,7 @@ import cn.edu.pku.wangyongsheng.util.NetUtil;
 public class MainActivity extends FragmentActivity implements View.OnClickListener {
     private TextView tv_title_city, tv_city, tv_time, tv_humidity, tv_daytime, tv_pm2_5_value, tv_pm2_5_quality,
             tv_temp, tv_weather, tv_wind, tv_degree;
-    private ImageView iv_pm2_5_face, iv_weather_face, iv_title_update, iv_select_city;
+    private ImageView iv_pm2_5_face, iv_weather_face, iv_title_update, iv_select_city,iv_first_page,iv_sencond_page;
     private static final int UPDATE_TODAY_WEATHER = 1;
     private ProgressBar pb_update;
     private Handler mHandler;
@@ -56,7 +57,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor edit;
     private List<Fragment> fragmentList;
-
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -156,7 +156,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
 
     }
-
+    //更新六天天气数据
     private void updateSixWeather() {
         Fragment former = new ThreeFormerFragment();
         Fragment later = new ThreeLaterFragment();
@@ -166,10 +166,34 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         MyFragmentPageAdapter newsFragmentPageAdapter = new MyFragmentPageAdapter(fm, fragmentList); //new myFragmentPagerAdater记得带上两个参数
         vp_six_weather.setAdapter(newsFragmentPageAdapter);
         vp_six_weather.setCurrentItem(0);
+        vp_six_weather.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                if (position==0){
+                    iv_first_page.setImageResource(R.drawable.page_indicator_focused);
+                    iv_sencond_page.setImageResource(R.drawable.page_indicator_unfocused);
+                }
+                if (position==1){
+                    iv_first_page.setImageResource(R.drawable.page_indicator_unfocused);
+                    iv_sencond_page.setImageResource(R.drawable.page_indicator_focused);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
     }
 
     //初始化控件方法
     private void initView() {
+
         sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
         edit = sharedPreferences.edit();
 
@@ -193,6 +217,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         tv_wind = findViewById(R.id.tv_wind);
         tv_degree = findViewById(R.id.tv_degree);
         iv_weather_face = findViewById(R.id.iv_weather_face);
+        iv_first_page=findViewById(R.id.iv_first_page);
+        iv_sencond_page=findViewById(R.id.iv_second_page);
         fragmentList = new ArrayList<>();
         //从SharedPreferences中获取数据，并更新控件的内容
         tv_title_city.setText(sharedPreferences.getString("title_city", "N/A"));
@@ -322,6 +348,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 Toast.makeText(this, "没有网络，请打开网络设置", Toast.LENGTH_SHORT).show();
             }
         }
+
     }
 
     //根据城市代码查询天气情况
