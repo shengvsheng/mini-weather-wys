@@ -19,6 +19,7 @@
         </activity>
         <activity android:name=".SelectCityActivity"/>
         <activity android:name=".MainActivity"/>
+        <service android:name="cn.edu.pku.wangyongsheng.service.GetDataService"/>
     </application>
 
 </manifest>

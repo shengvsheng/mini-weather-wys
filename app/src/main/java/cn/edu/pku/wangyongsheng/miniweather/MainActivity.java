@@ -1,10 +1,16 @@
 package cn.edu.pku.wangyongsheng.miniweather;
 
 
+import android.content.BroadcastReceiver;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -12,7 +18,6 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -39,6 +44,7 @@ import cn.edu.pku.wangyongsheng.bean.SixDay;
 import cn.edu.pku.wangyongsheng.bean.TodayWeather;
 import cn.edu.pku.wangyongsheng.fragment.ThreeFormerFragment;
 import cn.edu.pku.wangyongsheng.fragment.ThreeLaterFragment;
+import cn.edu.pku.wangyongsheng.service.GetDataService;
 import cn.edu.pku.wangyongsheng.util.MyFragmentPageAdapter;
 import cn.edu.pku.wangyongsheng.util.NetUtil;
 
@@ -57,13 +63,24 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor edit;
     private List<Fragment> fragmentList;
+    DataReceiver dataReceiver;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.weather_info);
+        addBroadcast();
         initView();
         addHandle();
+    }
+
+    private void addBroadcast(){
+        startService(new Intent(this,GetDataService.class));
+        dataReceiver = new DataReceiver();
+        IntentFilter filter = new IntentFilter();// 创建IntentFilter对象
+        filter.addAction("com.szy.ui.service");
+        registerReceiver(dataReceiver, filter);// 注册Broadcast Receiver
+
     }
 
     private void addHandle() {
@@ -614,6 +631,16 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 default:
                     break;
             }
+        }
+    }
+    public class DataReceiver extends BroadcastReceiver{
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String response=intent.getStringExtra("data");
+            Log.i("respom",response);
+            updateTodayWeather(parseXML(response));
+            updateSixWeather();
         }
     }
 }
