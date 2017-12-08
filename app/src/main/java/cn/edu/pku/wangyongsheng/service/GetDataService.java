@@ -26,9 +26,6 @@ import java.net.URL;
 
 public class GetDataService extends Service {
     SharedPreferences sharedPreferences;
-    String reponseStr;
-    boolean isRunning = true;
-
 
     @Override
     public void onCreate() {
@@ -51,22 +48,23 @@ public class GetDataService extends Service {
         return null;
     }
 
+
     @Override
     public void onDestroy() {
         super.onDestroy();
     }
 
-    private class MyTask extends AsyncTask<Void, Integer, Void> {
+    private class MyTask extends AsyncTask<Void, Integer, String> {
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
         }
 
         @Override
-        protected Void doInBackground(Void... voids) {
+        protected String doInBackground(Void... voids) {
             String cityCode = sharedPreferences.getString("city_code", "101010100");
             String address = "http://wthrcdn.etouch.cn/WeatherApi?citykey=" + cityCode;
-
+            String reponseStr = "";
             HttpURLConnection conn = null;
             try {
                 Thread.sleep(3000);
@@ -83,15 +81,12 @@ public class GetDataService extends Service {
                     reponse.append(str);
                 }
                 reponseStr = reponse.toString();
-
-
+                publishProgress();
             } catch (Exception e) {
                 Log.i("NETWORK", "FAILDE");
                 e.printStackTrace();
             }
-
-
-            return null;
+            return reponseStr;
         }
 
         @Override
@@ -100,15 +95,14 @@ public class GetDataService extends Service {
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
+        protected void onPostExecute(String response) {
+            super.onPostExecute(response);
             Intent intent = new Intent();//创建Intent对象
-            intent.setAction("com.szy.ui.service");
-            intent.putExtra("data", reponseStr);
+            intent.setAction("cn.pku.ui.service");
+            intent.putExtra("data", response);
             sendBroadcast(intent);//发送广播
         }
 
     }
-
 
 }

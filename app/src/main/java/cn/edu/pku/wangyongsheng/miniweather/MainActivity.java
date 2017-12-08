@@ -55,10 +55,10 @@ import cn.edu.pku.wangyongsheng.util.NetUtil;
 public class MainActivity extends FragmentActivity implements View.OnClickListener {
     private TextView tv_title_city, tv_city, tv_time, tv_humidity, tv_daytime, tv_pm2_5_value, tv_pm2_5_quality,
             tv_temp, tv_weather, tv_wind, tv_degree;
-    private ImageView iv_pm2_5_face, iv_weather_face, iv_title_update, iv_select_city,iv_first_page,iv_sencond_page;
+    private ImageView iv_pm2_5_face, iv_weather_face, iv_title_update, iv_select_city, iv_first_page, iv_sencond_page;
     private static final int UPDATE_TODAY_WEATHER = 1;
     private ProgressBar pb_update;
-    private Handler mHandler;
+
     private ViewPager vp_six_weather;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor edit;
@@ -71,42 +71,39 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         setContentView(R.layout.weather_info);
         addBroadcast();
         initView();
-        addHandle();
     }
 
-    private void addBroadcast(){
-        startService(new Intent(this,GetDataService.class));
+    private void addBroadcast() {
+        startService(new Intent(this, GetDataService.class));
         dataReceiver = new DataReceiver();
         IntentFilter filter = new IntentFilter();// 创建IntentFilter对象
-        filter.addAction("com.szy.ui.service");
+        filter.addAction("cn.pku.ui.service");
         registerReceiver(dataReceiver, filter);// 注册Broadcast Receiver
 
     }
 
-    private void addHandle() {
-        //使用Handler更新主线程UI
-        mHandler = new Handler() {
-            public void handleMessage(android.os.Message msg) {
-                switch (msg.what) {
-                    case UPDATE_TODAY_WEATHER:
-                        if ((TodayWeather) msg.obj == null) {
-                            Log.i("City", "IS null");
-                        } else {
-                            updateTodayWeather((TodayWeather) msg.obj);
-                        }
 
-                        iv_title_update.setVisibility(View.VISIBLE);
-                        pb_update.setVisibility(View.GONE);
-                        updateSixWeather();
-                        break;
-                    default:
-                        break;
-                }
+    //使用Handler更新主线程UI
+    private Handler mHandler = new Handler() {
+        public void handleMessage(android.os.Message msg) {
+            switch (msg.what) {
+                case UPDATE_TODAY_WEATHER:
+                    if ((TodayWeather) msg.obj == null) {
+                        Log.i("City", "IS null");
+                    } else {
+                        updateTodayWeather((TodayWeather) msg.obj);
+                    }
+
+                    iv_title_update.setVisibility(View.VISIBLE);
+                    pb_update.setVisibility(View.GONE);
+                    updateSixWeather();
+                    break;
+                default:
+                    break;
             }
+        }
 
-        };
-
-    }
+    };
 
     private void updateTodayWeather(TodayWeather todayWeather) {
         //更新UI以及更新数据时使用SharedPreferences保存数据，供下次打开时使用
@@ -173,6 +170,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
 
     }
+
     //更新六天天气数据
     private void updateSixWeather() {
         Fragment former = new ThreeFormerFragment();
@@ -191,11 +189,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
             @Override
             public void onPageSelected(int position) {
-                if (position==0){
+                if (position == 0) {
                     iv_first_page.setImageResource(R.drawable.page_indicator_focused);
                     iv_sencond_page.setImageResource(R.drawable.page_indicator_unfocused);
                 }
-                if (position==1){
+                if (position == 1) {
                     iv_first_page.setImageResource(R.drawable.page_indicator_unfocused);
                     iv_sencond_page.setImageResource(R.drawable.page_indicator_focused);
                 }
@@ -234,8 +232,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         tv_wind = findViewById(R.id.tv_wind);
         tv_degree = findViewById(R.id.tv_degree);
         iv_weather_face = findViewById(R.id.iv_weather_face);
-        iv_first_page=findViewById(R.id.iv_first_page);
-        iv_sencond_page=findViewById(R.id.iv_second_page);
+        iv_first_page = findViewById(R.id.iv_first_page);
+        iv_sencond_page = findViewById(R.id.iv_second_page);
         fragmentList = new ArrayList<>();
         //从SharedPreferences中获取数据，并更新控件的内容
         tv_title_city.setText(sharedPreferences.getString("title_city", "N/A"));
@@ -633,14 +631,30 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             }
         }
     }
-    public class DataReceiver extends BroadcastReceiver{
+
+    public class DataReceiver extends BroadcastReceiver {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            String response=intent.getStringExtra("data");
-            Log.i("respom",response);
+            String response = intent.getStringExtra("data");
+            Log.i("respom", response);
             updateTodayWeather(parseXML(response));
             updateSixWeather();
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i("Activity","resume!!!");
+        startService(new Intent(this, GetDataService.class));
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        Log.i("Activity","stop!!!");
+        stopService(new Intent(this, GetDataService.class));
+    }
+
 }
