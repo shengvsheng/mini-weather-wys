@@ -175,6 +175,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private void updateSixWeather() {
         Fragment former = new ThreeFormerFragment();
         Fragment later = new ThreeLaterFragment();
+        fragmentList.clear();
         fragmentList.add(former);
         fragmentList.add(later);
         FragmentManager fm = getSupportFragmentManager();
