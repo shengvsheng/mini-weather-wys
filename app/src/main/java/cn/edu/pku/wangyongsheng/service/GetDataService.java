@@ -19,13 +19,18 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
+import cn.edu.pku.wangyongsheng.miniweather.MainActivity;
+
 
 /**
- * Created by xiaosheng on 2017/12/6.
+ * 用来实时更新天气信息的数据
+ * 通过Handler通知MainActivity更新UI
  */
 
 public class GetDataService extends Service {
-    SharedPreferences sharedPreferences;
+    private SharedPreferences sharedPreferences;
+    private boolean isRunning = true;
+    private Thread mThread;
 
     @Override
     public void onCreate() {
@@ -37,8 +42,42 @@ public class GetDataService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Log.i("GetDataService", "GetDataService->onStartCommand");
-        MyTask myTask = new MyTask();
-        myTask.execute();
+        //启动一个子线程每5秒循环获取天气数据并通知主Activity更新数据
+        mThread = new Thread() {
+            @Override
+            public void run() {
+                String cityCode = sharedPreferences.getString("city_code", "101010100");
+                String address = "http://wthrcdn.etouch.cn/WeatherApi?citykey=" + cityCode;
+                while (isRunning) {
+                    try {
+                        String reponseStr = "";
+                        HttpURLConnection conn = null;
+                        URL url = new URL(address);
+                        conn = (HttpURLConnection) url.openConnection();
+                        conn.setRequestMethod("GET");
+                        conn.setConnectTimeout(8000);
+                        conn.setReadTimeout(8000);
+                        InputStream in = conn.getInputStream();
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+                        StringBuilder reponse = new StringBuilder();
+                        String str;
+                        while ((str = reader.readLine()) != null) {
+                            reponse.append(str);
+                        }
+                        reponseStr = reponse.toString();
+                        Message message = MainActivity.mUpdateHandler.obtainMessage();
+                        message.what = MainActivity.UPDATE_DATA;
+                        message.obj = reponseStr;
+                        MainActivity.mUpdateHandler.sendMessage(message);
+                        Thread.sleep(5000);
+                    } catch (Exception e) {
+                        Log.i("NETWORK", "FAILDE");
+                        e.printStackTrace();
+                    }
+                }
+            }
+        };
+        mThread.start();
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -48,61 +87,13 @@ public class GetDataService extends Service {
         return null;
     }
 
-
+    //当service停止后，取消子线程的循环
     @Override
     public void onDestroy() {
         super.onDestroy();
+        Log.i("GetDataService", "GetDataService->onDestroy");
+        isRunning = false;
     }
 
-    private class MyTask extends AsyncTask<Void, Integer, String> {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-        }
-
-        @Override
-        protected String doInBackground(Void... voids) {
-            String cityCode = sharedPreferences.getString("city_code", "101010100");
-            String address = "http://wthrcdn.etouch.cn/WeatherApi?citykey=" + cityCode;
-            String reponseStr = "";
-            HttpURLConnection conn = null;
-            try {
-                Thread.sleep(3000);
-                URL url = new URL(address);
-                conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("GET");
-                conn.setConnectTimeout(8000);
-                conn.setReadTimeout(8000);
-                InputStream in = conn.getInputStream();
-                BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-                StringBuilder reponse = new StringBuilder();
-                String str;
-                while ((str = reader.readLine()) != null) {
-                    reponse.append(str);
-                }
-                reponseStr = reponse.toString();
-                publishProgress();
-            } catch (Exception e) {
-                Log.i("NETWORK", "FAILDE");
-                e.printStackTrace();
-            }
-            return reponseStr;
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer... values) {
-            super.onProgressUpdate(values);
-        }
-
-        @Override
-        protected void onPostExecute(String response) {
-            super.onPostExecute(response);
-            Intent intent = new Intent();//创建Intent对象
-            intent.setAction("cn.pku.ui.service");
-            intent.putExtra("data", response);
-            sendBroadcast(intent);//发送广播
-        }
-
-    }
 
 }

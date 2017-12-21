@@ -20,7 +20,7 @@ import cn.edu.pku.wangyongsheng.fragment.GuidePageTwoFragment;
 import cn.edu.pku.wangyongsheng.util.MyFragmentPageAdapter;
 
 /**
- * Created by xiaosheng on 2017/11/29.
+ * 引导页activity
  */
 
 public class GuidePage extends FragmentActivity {
@@ -41,8 +41,6 @@ public class GuidePage extends FragmentActivity {
     }
 
     private void initView() {
-
-
         vp_guide = findViewById(R.id.vp_guide);
         iv_guide_1_page = findViewById(R.id.iv_guide_1_page);
         iv_guide_2_page = findViewById(R.id.iv_guide_2_page);
@@ -53,7 +51,7 @@ public class GuidePage extends FragmentActivity {
 
     private void initData() {
         boolean flag = sharedPreferences.getBoolean("GUIDE_FLAG", false);
-        if (!flag){
+        if (!flag) {
             fragmentList = new ArrayList<>();
             imageViews = new ImageView[]{iv_guide_1_page, iv_guide_2_page, iv_guide_3_page};
             Fragment one = new GuidePageOneFragment();
@@ -88,9 +86,9 @@ public class GuidePage extends FragmentActivity {
 
                 }
             });
-        }else {
-            Intent i=new Intent();
-            i.setClass(GuidePage.this,MainActivity.class);
+        } else {
+            Intent i = new Intent();
+            i.setClass(GuidePage.this, MainActivity.class);
             startActivity(i);
             finish();
         }

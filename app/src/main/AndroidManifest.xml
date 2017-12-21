@@ -1,8 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="cn.edu.pku.wangyongsheng.miniweather">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
     <application
         android:name="cn.edu.pku.wangyongsheng.app.MyApplication"
         android:allowBackup="true"
@@ -14,31 +16,26 @@
         <activity android:name=".GuidePage">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".SelectCityActivity"/>
-        <activity android:name=".MainActivity"/>
-        <service android:name="cn.edu.pku.wangyongsheng.service.GetDataService"/>
+        <activity android:name=".SelectCityActivity" />
+        <activity android:name=".MainActivity" />
+
+        <service android:name="cn.edu.pku.wangyongsheng.service.GetDataService" />
+        <service android:name="cn.edu.pku.wangyongsheng.service.UpdateWidgetDataService"/>
+
+        <receiver android:name="cn.edu.pku.wangyongsheng.widget.MyAppWidget">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/my_app_widget_info" />
+
+        </receiver>
     </application>
 
 </manifest>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

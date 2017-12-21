@@ -58,52 +58,22 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     private ImageView iv_pm2_5_face, iv_weather_face, iv_title_update, iv_select_city, iv_first_page, iv_sencond_page;
     private static final int UPDATE_TODAY_WEATHER = 1;
     private ProgressBar pb_update;
-
+    public static final int UPDATE_DATA = 2000;
     private ViewPager vp_six_weather;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor edit;
     private List<Fragment> fragmentList;
-    DataReceiver dataReceiver;
+
+    public static UpdateDataHandler mUpdateHandler;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.weather_info);
-        addBroadcast();
         initView();
-    }
-
-    private void addBroadcast() {
         startService(new Intent(this, GetDataService.class));
-        dataReceiver = new DataReceiver();
-        IntentFilter filter = new IntentFilter();// 创建IntentFilter对象
-        filter.addAction("cn.pku.ui.service");
-        registerReceiver(dataReceiver, filter);// 注册Broadcast Receiver
-
     }
 
-
-    //使用Handler更新主线程UI
-    private Handler mHandler = new Handler() {
-        public void handleMessage(android.os.Message msg) {
-            switch (msg.what) {
-                case UPDATE_TODAY_WEATHER:
-                    if ((TodayWeather) msg.obj == null) {
-                        Log.i("City", "IS null");
-                    } else {
-                        updateTodayWeather((TodayWeather) msg.obj);
-                    }
-
-                    iv_title_update.setVisibility(View.VISIBLE);
-                    pb_update.setVisibility(View.GONE);
-                    updateSixWeather();
-                    break;
-                default:
-                    break;
-            }
-        }
-
-    };
 
     private void updateTodayWeather(TodayWeather todayWeather) {
         //更新UI以及更新数据时使用SharedPreferences保存数据，供下次打开时使用
@@ -164,8 +134,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                 tv_pm2_5_quality.setText(todayWeather.getQuality());
             }
             switchFace(todayWeather.getType(), todayWeather.getQuality());
-            //更新成功Toast信息
-            Toast.makeText(MainActivity.this, "更新成功！", Toast.LENGTH_SHORT).show();
         }
 
 
@@ -176,6 +144,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         Fragment former = new ThreeFormerFragment();
         Fragment later = new ThreeLaterFragment();
         fragmentList.clear();
+        iv_first_page.setImageResource(R.drawable.page_indicator_focused);
+        iv_sencond_page.setImageResource(R.drawable.page_indicator_unfocused);
         fragmentList.add(former);
         fragmentList.add(later);
         FragmentManager fm = getSupportFragmentManager();
@@ -212,7 +182,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
         sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
         edit = sharedPreferences.edit();
-
+        mUpdateHandler = new UpdateDataHandler();
         //绑定控件
         vp_six_weather = findViewById(R.id.vp_six_weather);
         iv_title_update = findViewById(R.id.iv_title_update);
@@ -355,11 +325,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
         //点击获取数据控件，获取当前保存的城市代码对应的城市天气数据
         if (view.getId() == R.id.iv_title_update) {
-
             String cityCode = sharedPreferences.getString("city_code", "101010100");
             if (NetUtil.getNetworkState(this) != NetUtil.NETWORK_NONE) {
                 queryWeatherInfo(cityCode);
-
             } else {
                 Toast.makeText(this, "没有网络，请打开网络设置", Toast.LENGTH_SHORT).show();
             }
@@ -397,9 +365,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     Message msg = new Message();
                     msg.what = UPDATE_TODAY_WEATHER;
                     msg.obj = todayWeaher;
-                    mHandler.sendMessageDelayed(msg, 4000);
-//                    mHandler.sendMessage(msg);
-
+                    mUpdateHandler.sendMessageDelayed(msg, 4000);
                 } catch (Exception e) {
                     Toast.makeText(MainActivity.this, "网络异常！", Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
@@ -620,7 +586,6 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     SharedPreferences.Editor edit = sharedPreferences.edit();
                     edit.putString("city_code", data.getStringExtra("city_code"));
                     edit.commit();
-                    Log.i("SSSSSCODE", data.getStringExtra("city_code"));
                     if (NetUtil.getNetworkState(this) != NetUtil.NETWORK_NONE) {
                         queryWeatherInfo(data.getStringExtra("city_code"));
                     } else {
@@ -633,29 +598,53 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
     }
 
-    public class DataReceiver extends BroadcastReceiver {
 
+    //定义一个Handler子类，用来更新主线程UI和处理Service传来的消息
+    public class UpdateDataHandler extends Handler {
         @Override
-        public void onReceive(Context context, Intent intent) {
-            String response = intent.getStringExtra("data");
-            Log.i("respom", response);
-            updateTodayWeather(parseXML(response));
-            updateSixWeather();
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case UPDATE_TODAY_WEATHER:
+                    if ((TodayWeather) msg.obj == null) {
+                        Log.i("City", "IS null");
+                    } else {
+                        updateTodayWeather((TodayWeather) msg.obj);
+                    }
+                    iv_title_update.setVisibility(View.VISIBLE);
+                    pb_update.setVisibility(View.GONE);
+                    updateSixWeather();
+                    Toast.makeText(MainActivity.this, "更新成功！", Toast.LENGTH_SHORT).show();
+                    break;
+                case UPDATE_DATA:
+                    Log.i("getData", msg.obj.toString());
+                    TodayWeather todayWeather = parseXML(msg.obj.toString());
+                    if (todayWeather == null) {
+                        Log.i("City", "IS null");
+                    } else {
+                        updateTodayWeather(todayWeather);
+                    }
+                    iv_title_update.setVisibility(View.VISIBLE);
+                    pb_update.setVisibility(View.GONE);
+                    updateSixWeather();
+                    break;
+                default:
+                    break;
+            }
         }
     }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        Log.i("Activity","resume!!!");
-        startService(new Intent(this, GetDataService.class));
-    }
-
+    //当当前的activity停止时，停止实时更新天气信息的service
     @Override
     protected void onStop() {
         super.onStop();
-        Log.i("Activity","stop!!!");
+        Log.i("MainActivity", "MainActivity->onStop");
         stopService(new Intent(this, GetDataService.class));
     }
-
+    //当当前的activity恢复时，启动实时更新天气信息的service
+    @Override
+    protected void onResume() {
+        super.onResume();
+        Log.i("MainActivity", "MainActivity->onResume");
+        startService(new Intent(this, GetDataService.class));
+    }
 }
