@@ -31,13 +31,28 @@
                 android:textColor="@color/white"
                 android:textSize="20dp" />
 
-            <ImageView
-                android:id="@+id/iv_title_location"
+
+            <LinearLayout
+                android:id="@+id/ll_location"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:layout_toLeftOf="@+id/iv_title_share"
-                android:src="@drawable/title_location" />
+                android:layout_toLeftOf="@+id/iv_title_share">
 
+                <ImageView
+                    android:id="@+id/iv_title_location"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/title_location" />
+
+                <ProgressBar
+                    android:id="@+id/pb_location"
+                    style="@style/MyProgressBar"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_alignParentRight="true"
+                    android:visibility="gone" />
+            </LinearLayout>
             <ImageView
                 android:id="@+id/iv_title_share"
                 android:layout_width="40dp"

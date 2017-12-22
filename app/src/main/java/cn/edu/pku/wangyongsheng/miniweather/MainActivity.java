@@ -25,6 +25,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alibaba.fastjson.JSON;
+import com.baidu.location.BDAbstractLocationListener;
+import com.baidu.location.BDLocation;
+import com.baidu.location.LocationClient;
+import com.baidu.location.LocationClientOption;
+import com.github.promeg.pinyinhelper.Pinyin;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -40,6 +45,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 
+import cn.edu.pku.wangyongsheng.app.MyApplication;
+import cn.edu.pku.wangyongsheng.bean.City;
 import cn.edu.pku.wangyongsheng.bean.SixDay;
 import cn.edu.pku.wangyongsheng.bean.TodayWeather;
 import cn.edu.pku.wangyongsheng.fragment.ThreeFormerFragment;
@@ -55,16 +62,19 @@ import cn.edu.pku.wangyongsheng.util.NetUtil;
 public class MainActivity extends FragmentActivity implements View.OnClickListener {
     private TextView tv_title_city, tv_city, tv_time, tv_humidity, tv_daytime, tv_pm2_5_value, tv_pm2_5_quality,
             tv_temp, tv_weather, tv_wind, tv_degree;
-    private ImageView iv_pm2_5_face, iv_weather_face, iv_title_update, iv_select_city, iv_first_page, iv_sencond_page;
+    private ImageView iv_title_location, iv_pm2_5_face, iv_weather_face, iv_title_update, iv_select_city, iv_first_page, iv_sencond_page;
     private static final int UPDATE_TODAY_WEATHER = 1;
-    private ProgressBar pb_update;
+    private ProgressBar pb_update, pb_location;
     public static final int UPDATE_DATA = 2000;
+    public static final int LOCATION_DATA = 1000;
     private ViewPager vp_six_weather;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor edit;
     private List<Fragment> fragmentList;
-
     public static UpdateDataHandler mUpdateHandler;
+
+    public LocationClient mLocationClient = null;
+    private MyLocationListener myListener = new MyLocationListener();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -179,7 +189,8 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
 
     //初始化控件方法
     private void initView() {
-
+        iv_title_location = findViewById(R.id.iv_title_location);
+        pb_location = findViewById(R.id.pb_location);
         sharedPreferences = getSharedPreferences("config", MODE_PRIVATE);
         edit = sharedPreferences.edit();
         mUpdateHandler = new UpdateDataHandler();
@@ -189,6 +200,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         iv_select_city = findViewById(R.id.iv_select_city);
         iv_title_update.setOnClickListener(this);
         iv_select_city.setOnClickListener(this);
+        iv_title_location.setOnClickListener(this);
         pb_update = findViewById(R.id.pb_update);
         tv_title_city = findViewById(R.id.tv_title_city);
         tv_city = findViewById(R.id.tv_city);
@@ -327,19 +339,28 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         if (view.getId() == R.id.iv_title_update) {
             String cityCode = sharedPreferences.getString("city_code", "101010100");
             if (NetUtil.getNetworkState(this) != NetUtil.NETWORK_NONE) {
+                iv_title_update.setVisibility(View.GONE);
+                pb_update.setVisibility(View.VISIBLE);
                 queryWeatherInfo(cityCode);
             } else {
                 Toast.makeText(this, "没有网络，请打开网络设置", Toast.LENGTH_SHORT).show();
             }
         }
-
+        //点击定位控件，获取当前的城市，并更新天气数据
+        if (view.getId() == R.id.iv_title_location) {
+            if (NetUtil.getNetworkState(this) != NetUtil.NETWORK_NONE) {
+                getLocation();
+            } else {
+                Toast.makeText(this, "没有网络，请打开网络设置", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     //根据城市代码查询天气情况
     private void queryWeatherInfo(String cityCode) {
+        stopService(new Intent(this, GetDataService.class));
         final String address = "http://wthrcdn.etouch.cn/WeatherApi?citykey=" + cityCode;
-        iv_title_update.setVisibility(View.GONE);
-        pb_update.setVisibility(View.VISIBLE);
+
         //使用子线程，通过Http方式获取接口数据
         new Thread(new Runnable() {
             @Override
@@ -576,27 +597,26 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         return todayWeather;
     }
 
-    //对返回的activity，通过requestcode判断作更新操作
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (resultCode == RESULT_OK) {
-            switch (requestCode) {
-                case 0:
-                    SharedPreferences.Editor edit = sharedPreferences.edit();
-                    edit.putString("city_code", data.getStringExtra("city_code"));
-                    edit.commit();
-                    if (NetUtil.getNetworkState(this) != NetUtil.NETWORK_NONE) {
-                        queryWeatherInfo(data.getStringExtra("city_code"));
-                    } else {
-                        Toast.makeText(this, "没有网络，请打开网络设置", Toast.LENGTH_SHORT).show();
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+//    //对返回的activity，通过requestcode判断作更新操作
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//        if (resultCode == RESULT_OK) {
+//            switch (requestCode) {
+//                case 0:
+//                    if (NetUtil.getNetworkState(this) != NetUtil.NETWORK_NONE) {
+//                        iv_title_update.setVisibility(View.GONE);
+//                        pb_update.setVisibility(View.VISIBLE);
+//                        queryWeatherInfo(sharedPreferences.getString("city_code","101010100"));
+//                    } else {
+//                        Toast.makeText(this, "没有网络，请打开网络设置", Toast.LENGTH_SHORT).show();
+//                    }
+//                    break;
+//                default:
+//                    break;
+//            }
+//        }
+//    }
 
 
     //定义一个Handler子类，用来更新主线程UI和处理Service传来的消息
@@ -613,8 +633,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     }
                     iv_title_update.setVisibility(View.VISIBLE);
                     pb_update.setVisibility(View.GONE);
+                    iv_title_location.setVisibility(View.VISIBLE);
+                    pb_location.setVisibility(View.GONE);
                     updateSixWeather();
                     Toast.makeText(MainActivity.this, "更新成功！", Toast.LENGTH_SHORT).show();
+                    startService(new Intent(MainActivity.this, GetDataService.class));
                     break;
                 case UPDATE_DATA:
                     Log.i("getData", msg.obj.toString());
@@ -628,11 +651,23 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                     pb_update.setVisibility(View.GONE);
                     updateSixWeather();
                     break;
+                case LOCATION_DATA:
+                    if ((TodayWeather) msg.obj == null) {
+                        Log.i("City", "IS null");
+                    } else {
+                        updateTodayWeather((TodayWeather) msg.obj);
+                    }
+                    iv_title_update.setVisibility(View.VISIBLE);
+                    pb_update.setVisibility(View.GONE);
+                    updateSixWeather();
+                    Toast.makeText(MainActivity.this, "更新成功！", Toast.LENGTH_SHORT).show();
+                    break;
                 default:
                     break;
             }
         }
     }
+
     //当当前的activity停止时，停止实时更新天气信息的service
     @Override
     protected void onStop() {
@@ -640,11 +675,64 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         Log.i("MainActivity", "MainActivity->onStop");
         stopService(new Intent(this, GetDataService.class));
     }
-    //当当前的activity恢复时，启动实时更新天气信息的service
+    //当当前的activity重启时，启动实时更新天气信息的service
     @Override
-    protected void onResume() {
-        super.onResume();
-        Log.i("MainActivity", "MainActivity->onResume");
+    protected void onRestart() {
+        super.onRestart();
+        Log.i("MainActivity", "MainActivity->onRestart");
         startService(new Intent(this, GetDataService.class));
+    }
+
+    public void getLocation() {
+        mLocationClient = new LocationClient(getApplicationContext());//声明LocationClient类
+        mLocationClient.registerLocationListener(myListener);//注册监听函数
+        LocationClientOption option = new LocationClientOption();
+        option.setIsNeedAddress(true);//设置需要获得当前点的地址信息，此处必须为true
+        mLocationClient.setLocOption(option);//将配置好的LocationClientOption对象，通过setLocOption方法传递给LocationClient对象使用
+        mLocationClient.start();//mLocationClient为第二步初始化过的LocationClient对象
+    }
+
+    public class MyLocationListener extends BDAbstractLocationListener {
+        @Override
+        public void onReceiveLocation(BDLocation location) {
+            iv_title_location.setVisibility(View.GONE);
+            pb_location.setVisibility(View.VISIBLE);
+            //此处的BDLocation为定位结果信息类，通过它的各种get方法可获取定位相关的全部结果
+            //以下只列举部分获取地址相关的结果信息
+            String city = location.getCity();    //获取城市
+            String district = location.getDistrict();    //获取区县
+            saveCity(city, district);
+            Log.i("City", city + " " + district + " ");
+        }
+    }
+
+    //保存定位城市信息
+    private void saveCity(String city, String district) {
+        City cityObj = null;
+        List<City> all = MyApplication.getInstance().getCityList();
+        for (int i = 0; i < all.size(); i++) {
+            if (city.split("市")[0].equals(all.get(i).getCity())) {
+                Log.i("righ2", "true2" + all.get(i).getCity());
+                cityObj = all.get(i);
+                break;
+            }
+        }
+        for (int i = 0; i < all.size(); i++) {
+            if (district.split("区")[0].equals(all.get(i).getCity())) {
+                Log.i("right1", "true1" + all.get(i).getCity());
+                cityObj = all.get(i);
+                break;
+            }
+        }
+        if (cityObj == null) {
+            Toast.makeText(this, "当前定位城市没有天气信息！", Toast.LENGTH_SHORT).show();
+        } else {
+            Log.i("right", "true" + cityObj.getCity() + cityObj.getNumber());
+            edit.putString("SELECT", cityObj.getCity());
+            edit.putString("city_code", cityObj.getNumber());
+            edit.commit();
+            Toast.makeText(this, "定位成功！", Toast.LENGTH_SHORT).show();
+            queryWeatherInfo(cityObj.getNumber());
+        }
     }
 }

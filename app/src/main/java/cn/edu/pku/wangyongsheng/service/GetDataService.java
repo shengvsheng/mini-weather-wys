@@ -46,10 +46,10 @@ public class GetDataService extends Service {
         mThread = new Thread() {
             @Override
             public void run() {
-                String cityCode = sharedPreferences.getString("city_code", "101010100");
-                String address = "http://wthrcdn.etouch.cn/WeatherApi?citykey=" + cityCode;
                 while (isRunning) {
                     try {
+                        String cityCode = sharedPreferences.getString("city_code", "101010100");
+                        String address = "http://wthrcdn.etouch.cn/WeatherApi?citykey=" + cityCode;
                         String reponseStr = "";
                         HttpURLConnection conn = null;
                         URL url = new URL(address);

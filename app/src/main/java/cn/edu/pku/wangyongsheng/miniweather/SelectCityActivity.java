@@ -71,9 +71,8 @@ public class SelectCityActivity extends Activity implements View.OnClickListener
                 //保存点击的item的位置
                 SharedPreferences.Editor edit = sharedPreferences.edit();
                 edit.putString("SELECT", mCityList.get(i).getCity());
-                edit.putInt("position", i);
+                edit.putString("city_code", mCityList.get(i).getNumber());
                 edit.commit();
-
                 tv_select_city.setText("当前选择城市：" + mCityList.get(i).getCity());
             }
         });
@@ -137,8 +136,6 @@ public class SelectCityActivity extends Activity implements View.OnClickListener
 
     @Override
     public void onBackPressed() {
-        //返回时携带返回的城市代码数据
-        getIntent().putExtra("city_code", mCityList.get(sharedPreferences.getInt("position", 0)).getNumber());
         setResult(RESULT_OK, getIntent());
         finish();
         super.onBackPressed();

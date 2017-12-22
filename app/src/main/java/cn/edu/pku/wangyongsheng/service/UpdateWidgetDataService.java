@@ -114,7 +114,7 @@ public class UpdateWidgetDataService extends Service {
     //更新小插件Widget的信息的方法
     private void updateWidget(String str) {
         TodayWeather todayWeather=parseXML(str);
-        Log.i("Response",str);
+        Log.i("Response1",str);
         // 更新 Widget
         RemoteViews remoteViews = new RemoteViews(getApplicationContext().getPackageName(), R.layout.my_app_widget);
         remoteViews.setTextViewText(R.id.tv_city,todayWeather.getCity()+"天气");
